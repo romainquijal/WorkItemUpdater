@@ -10,7 +10,7 @@ import { WorkItemExpand, WorkItem, WorkItemField, WorkItemRelation, QueryHierarc
 import { WorkItemQueryResult } from 'azure-devops-node-api/interfaces/WorkItemTrackingInterfaces';
 import { IReleaseApi } from 'azure-devops-node-api/ReleaseApi';
 import { DeploymentStatus, ReleaseQueryOrder } from 'azure-devops-node-api/interfaces/ReleaseInterfaces';
-
+ 
 async function main(): Promise<void> {
     try {
         const vstsWebApi: WebApi = getVstsWebApi();
