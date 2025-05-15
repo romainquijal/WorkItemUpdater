@@ -228,6 +228,32 @@
                 "maxLength": "5000"
             },
             "helpMarkDown": "Tags to remove from the workitem. Enter a tag per line."
+        },
+        {
+            "name": "includingTags",
+            "type": "multiLine",
+            "label": "Tags needed for update",
+            "required": false,
+            "defaultValue": "",
+            "properties": {
+                "resizable": "true",
+                "rows": "4",
+                "maxLength": "5000"
+            },
+            "helpMarkDown": "Tags needed to the workitem (if workItem doesn't contain Tag it will be skeeped). Enter a tag per line."
+        },
+        {
+            "name": "excludingTags",
+            "type": "multiLine",
+            "label": "Tags excluded to be updated",
+            "required": false,
+            "defaultValue": "",
+            "properties": {
+                "resizable": "true",
+                "rows": "4",
+                "maxLength": "5000"
+            },
+            "helpMarkDown": "Tags excluded from the workitem (only WorkItem containing this tag will be updated). Enter a tag per line."
         }
     ],
     "sourceDefinitions": [],
