@@ -21,6 +21,8 @@ export class Settings {
     public assignedTo: string;
     public addTags: string;
     public removeTags: string;
+    public includingTags: string;
+    public excludingTags: string;
     public comment: string;
     public updateFields: string;
     public bypassRules: boolean;

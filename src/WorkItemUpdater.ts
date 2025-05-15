@@ -15,6 +15,8 @@ async function main(): Promise<void> {
     try {
         const vstsWebApi: WebApi = getVstsWebApi();
         const settings: Settings = getSettings();
+        const includeTags = settings.includingTags ? settings.includingTags.split(';').map(t => t.trim().toLowerCase()) : [];
+        const excludeTags = settings.excludingTags ? settings.excludingTags.split(';').map(t => t.trim().toLowerCase()) : [];
 
         tl.debug('Get WorkItemTrackingApi');
         const workItemTrackingClient: IWorkItemTrackingApi = await vstsWebApi.getWorkItemTrackingApi();
@@ -31,6 +33,13 @@ async function main(): Promise<void> {
                 tl.debug('Found WorkItemRef: ' + workItemRef.id);
                 const workItem: WorkItem = await workItemTrackingClient.getWorkItem(parseInt(workItemRef.id), undefined, undefined, WorkItemExpand.Relations);
                 console.log('Found WorkItem: ' + workItem.id);
+
+                const tags = workItem.fields['System.Tags'];
+
+                if (!hasMatchingTags(tags, includeTags, excludeTags)) {
+                    console.log('Skipped WorkItem ' + workItem.id + 'due to tag filtering.');
+                    return;
+                }
 
                 switch (settings.updateAssignedToWith) {
                     case 'Creator': {
@@ -125,6 +134,15 @@ function getSettings(): Settings {
         settings.removeTags = settings.removeTags.replace(/(?:\r\n|\r|\n)/g, ';');
     }
 
+    settings.includingTags = tl.getInput('includingTags');
+    if (settings.includingTags) {
+        settings.includingTags = settings.includingTags.replace(/(?:\r\n|\r|\n)/g, ';');
+    }
+    settings.excludingTags = tl.getInput('excludingTags');
+    if (settings.excludingTags) {
+        settings.excludingTags = settings.excludingTags.replace(/(?:\r\n|\r|\n)/g, ';');
+    }
+
     const releaseIdString = tl.getVariable('Release.ReleaseId');
     const definitionIdString = tl.getVariable('Release.DefinitionId');
     const definitionEnvironmentIdString = tl.getVariable('Release.DefinitionEnvironmentId');
@@ -159,6 +177,8 @@ function getSettings(): Settings {
     tl.debug('updateFields ' + settings.updateFields);
     tl.debug('comment ' + settings.comment);
     tl.debug('removeTags ' + settings.removeTags);
+    tl.debug('includingTags ' + settings.includingTags);
+    tl.debug('excludingTags ' + settings.excludingTags);
     tl.debug('bypassRules ' + settings.bypassRules);
     tl.debug('failTaskIfNoWorkItemsAvailable ' + settings.failTaskIfNoWorkItemsAvailable);
 
@@ -417,6 +437,20 @@ function addPatchOperation(path: any, value: any, document: any[], operation: Op
     };
     document.push(patchOperation);
     console.log('Patch: ' + patchOperation.path + ' ' + patchOperation.value);
+}
+
+function hasMatchingTags(tagsString: string, includeTags: string[], excludeTags: string[]): boolean {
+    const tags = tagsString ? tagsString.split(';').map(t => t.trim().toLowerCase()) : [];
+
+    if (includeTags.length > 0 && !includeTags.some(tag => tags.includes(tag))) {
+        return false;
+    }
+
+    if (excludeTags.length > 0 && excludeTags.some(tag => tags.includes(tag))) {
+        return false;
+    }
+
+    return true;
 }
 
 main();
